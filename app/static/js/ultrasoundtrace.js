@@ -11,6 +11,7 @@ $(window).load(function () {
     var numFiles = files.length;
     var lastImage = new Image();
     var points = [];
+    var newPoints = [];
     var contextPoints = {};
 
     var mode = "pen";
@@ -130,6 +131,10 @@ $(window).load(function () {
         )
     }
 
+    function uniquePoints(points) {
+        return _.uniq(points, function (newPoint) {return newPoint.x}); // get rid of duplicates.
+    }
+
     function filterPoints() {
         points = _.filter(points, function (point) {
             return withinRoI(point)
@@ -150,7 +155,7 @@ $(window).load(function () {
             if (isDrawing) {
                 var coords = getMousePos(canvas, e);
                 if (withinRoI(coords) == true) {
-                    points.push(coords);
+                    newPoints.push(coords);
                     context.lineTo(coords.x, coords.y);
                     context.stroke();
                 }
@@ -163,11 +168,22 @@ $(window).load(function () {
         canvas.onmouseup = function () {
             isDrawing = false;
             //context.beginPath();
+            newPoints = uniquePoints(newPoints);
+            newPoints = smooth(newPoints);
 
-            points = _.uniq(points, function (point) {
-                return point.x
+            _.each(newPoints, function (newPoint) {
+                points = _.filter(points, function (oldPoint) {
+                    return oldPoint.x != newPoint.x
+                });
             });
-            smooth();
+
+            points = points.concat(newPoints);
+            newPoints = [];
+            //points = _.uniq(points.reverse(), function (point) {
+            //    return point.x
+            //});
+            smoothAndRedraw();
+            console.log("total points: " + points.length);
         };
     }
 
@@ -177,7 +193,7 @@ $(window).load(function () {
         drawRoI();
         setPenContext();
         filterPoints();
-        sortPoints(); // sorts in-place
+        points = sortPoints(points);
         for (var i = 0; i < points.length - 1; i++) {
             var point = points[i];
             var nextPoint = points[i + 1];
@@ -189,8 +205,8 @@ $(window).load(function () {
         }
     }
 
-    function sortPoints() {
-        points = _.sortBy(points, function (p) {
+    function sortPoints(points) {
+        return _.sortBy(points, function (p) {
             return p.x;
         });
     }
@@ -211,7 +227,7 @@ $(window).load(function () {
 
         canvas.onmouseup = function () {
 
-            var newPoints = [];
+            var remainingPoints = [];
             for (var j = 0; j < points.length; j++) {
                 var isValid = true;
                 var valid = points[j];
@@ -223,11 +239,11 @@ $(window).load(function () {
                     }
                 }
                 if (isValid == true) {
-                    newPoints.push(valid);
+                    remainingPoints.push(valid);
                 }
             }
 
-            points = newPoints;
+            points = remainingPoints;
             redraw();
         };
     }
@@ -258,7 +274,7 @@ $(window).load(function () {
         redraw();
     }
 
-    function smoothed() {
+    function smoothed(points) {
         // ensure distance between all neighboring points <= 1
         for (var i = 0; i < points.length - 1; i++) {
             p = points[i];
@@ -268,9 +284,9 @@ $(window).load(function () {
         return true
     }
 
-    function smooth() {
+    function smooth(points) {
         if (points.length != 0) {
-            sortPoints();
+            points = sortPoints(points);
             var smoothedPoints = [];
             for (var i = 0; i < points.length - 1; i++) {
                 var currentPoint = points[i];
@@ -289,8 +305,14 @@ $(window).load(function () {
             smoothedPoints.push(_.last(points));
             points = smoothedPoints;
             // smooth until convergence
-            if (smoothed() == false) smooth();
+            if (smoothed(points) == false) smooth(points);
         }
+        return points;
+    }
+
+    function smoothAndRedraw() {
+
+        points = smooth(points);
         redraw();
     }
 
@@ -299,7 +321,7 @@ $(window).load(function () {
     });
 
     $("#smooth").click(function () {
-        smooth();
+        smoothAndRedraw();
     });
 
     $("#pen").click(function () {
@@ -326,7 +348,7 @@ $(window).load(function () {
 
     $("#eraser").click(function () {
         $('#tracearea').css({
-            'cursor': 'url(images/circle.cur) 2 -1, crosshair'
+            'cursor': 'url(static/images/circle.cur) 2 -1, crosshair'
         });
         mode = "eraser";
         setButtonActive(this);
