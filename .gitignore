@@ -1,6 +1,16 @@
 # Python 
 *.pyc
 
+# virtualenv
+apil_env/
+*.pyc
+*.pyo
+*~
+
+# webapp
+*.db
+*.mo
+
 # Intellij
 .idea/
 *.iml
