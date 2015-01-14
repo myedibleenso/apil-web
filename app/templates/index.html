@@ -1,0 +1,7 @@
+<!-- extend base layout -->
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Logged in as <span class="label-primary">{{ user.nickname }}</span> <img src="{{ user.avatar(50) }}"></h1>
+{% include 'flash.html' %}
+{% endblock %}
