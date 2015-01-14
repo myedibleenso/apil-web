@@ -72,7 +72,11 @@ def logout():
 
 @app.route('/draw')
 def trace():
-    return app.send_static_file('draw.html')
+    user = g.user
+    return render_template('draw.html',
+                           title='Trace',
+                           user=user)
+    #return app.send_static_file('draw.html')
 
 
 if __name__ == '__main__':
