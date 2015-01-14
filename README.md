@@ -15,11 +15,14 @@ From the project directory, `source apil_env/bin/activate`
 
 ### 2) Installing the project dependencies
 
-After activating the vm, make sure you have all of the necessary dependencies installed.  type `pip install -r requirements.txt`
+After activating the vm, make sure you have all of the necessary dependencies installed.  Simply type:  
+`pip install -r requirements.txt`
 
 ### 3) Run the web app locally
 
-``
+  1. From the project directory, type:  
+`./run.py`  
+  2. In your browser, navigate to `http://localhost:5000`
 
 ### 4) Adding dependencies
 
