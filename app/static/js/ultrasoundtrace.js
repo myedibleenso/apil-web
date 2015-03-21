@@ -2,8 +2,7 @@
 // TODO: add palate pen & points
 // TODO: add RoI
 // Added button glyphs, arrow key actions & automatic smoothing
-
-$(window).load(function () {
+$(document).ready(function () {
     // avoid the circa 1990 look while loading...
     $(".loader").fadeOut("slow");
     var files = [];

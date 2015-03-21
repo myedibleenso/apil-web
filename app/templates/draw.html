@@ -1,79 +1,76 @@
 <!-- extend base layout -->
 {% extends "base.html" %}
 
-{% block content %}
+{% block title %}APIL{% endblock %}
+{% block head -%}
+{{super()}}
+<script type="text/javascript" src="{{ url_for('static', filename='js/underscore.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/ultrasoundtrace.js') }}"></script>
+{%- endblock head %}
 
-<head>
-    <meta charset=utf-8/>
-    <title>Tracer</title>
-    <script type="text/javascript" src="static/js/jquery-2.1.1.js"></script>
-    <script type="text/javascript" src="static/js/underscore.js"></script>
-    <script type="text/javascript" src="static/js/ultrasoundtrace.js"></script>
-    <link href="static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <link href="static/bootstrap/css/bootstrap-theme.css" rel="stylesheet">
-    <link href="static/font-awesome-4.2.0/css/font-awesome.min.css" rel="stylesheet">
-    <script type="text/javascript" src="static/bootstrap/js/bootstrap.min.js"></script>
-    <script type="test/javascript" src="static/js/FileSaver.js"></script>
-    <style type="text/css">
+{% block styles -%}
+{{super()}}
+<style type="text/css">
 
-        body {
-            background: #F0F0F0;
-        }
+    body {
+        background: #F0F0F0;
+    }
 
-        #tracearea {
-            background-image: url("static/images/frame-0014430.png");
-            cursor: crosshair;
-            display: block;
-            border: 2px solid lightslategrey;
-        }
+    #tracearea {
+        background-image: url("static/images/frame-0014430.png");
+        cursor: crosshair;
+        display: block;
+        border: 2px solid lightslategrey;
+    }
 
-        .btn-file {
-            position: relative;
-            overflow: hidden;
-        }
+    .btn-file {
+        position: relative;
+        overflow: hidden;
+    }
 
-        .btn-file input[type=file] {
-            position: absolute;
-            top: 0;
-            right: 0;
-            min-width: 100%;
-            min-height: 100%;
-            font-size: 100px;
-            text-align: right;
-            filter: alpha(opacity=0);
-            opacity: 0;
-            outline: none;
-            background: white;
-            cursor: inherit;
-            display: block;
-        }
+    .btn-file input[type=file] {
+        position: absolute;
+        top: 0;
+        right: 0;
+        min-width: 100%;
+        min-height: 100%;
+        font-size: 100px;
+        text-align: right;
+        filter: alpha(opacity=0);
+        opacity: 0;
+        outline: none;
+        background: white;
+        cursor: inherit;
+        display: block;
+    }
 
-        .top-buffer {
-            margin-top: 10px;
-        }
+    .top-buffer {
+        margin-top: 10px;
+    }
 
-        .loader {
-            position: fixed;
-            left: 0px;
-            top: 0px;
-            width: 100%;
-            height: 100%;
-            z-index: 9999;
-            background: url('static/images/page-loader.gif') 50% 50% no-repeat rgb(249, 249, 249);
-        }
+    .loader {
+        position: fixed;
+        left: 0px;
+        top: 0px;
+        width: 100%;
+        height: 100%;
+        z-index: 9999;
+        background: "{{ url_for('static', filename='images/page-loader.gif') }}" 50% 50% no-repeat rgb(249, 249, 249);
+    }
 
-        .container-fluid {
-            padding: 0 15px;
-        }
+    .container-fluid {
+        padding: 0 15px;
+    }
 
-        .tarea {
+    .tarea {
 
-            resize: both;
+        resize: both;
 
-        }
-    </style>
-</head>
-<body>
+    }
+</style>
+{%- endblock styles %}
+
+{% block content -%}
 <div class="container centered">
 
 <div class="loader"></div>
@@ -135,7 +132,4 @@
 </div>
 
 <!-- <input type="button" id="clickMe" value="clickme" onclick="previewFile();" /> -->
-
-
-</body>
-{% endblock %}
+{%- endblock content %}

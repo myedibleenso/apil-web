@@ -18,13 +18,6 @@ From the project directory, `source apil_env/bin/activate`
 After activating the vm, make sure you have all of the necessary dependencies installed.  Simply type:  
 `pip install -r requirements.txt`
 
-### 2b) Initialize a local database
-
-If it's your first time running the app, you'll want to initialize a database.  From the project directory run the following two commands:
-
-`python db_create.py`  
-`python db_migrate.py`
-
 ### 3) Run the web app locally
 
   1. From the project directory, type:  
