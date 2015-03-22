@@ -2,7 +2,7 @@
 // TODO: add palate pen & points
 // TODO: add RoI
 // Added button glyphs, arrow key actions & automatic smoothing
-$(document).ready(function () {
+$(window).load(function () {
     // avoid the circa 1990 look while loading...
     $(".loader").fadeOut("slow");
     var files = [];
@@ -12,6 +12,7 @@ $(document).ready(function () {
     var points = [];
     var newPoints = [];
     var contextPoints = {};
+    var tracedFiles = {};
 
     var mode = "pen";
 
@@ -406,7 +407,14 @@ $(document).ready(function () {
     }
 
     function savePoints() {
+      if (!_.isEmpty(points)) {
         contextPoints[idx] = points;
+        if (files.length > 0) {
+          var fname = files[idx].name;
+          tracedFiles[fname] = points;
+          console.log("file: " + fname);
+        }
+      }
     }
 
     function loadPoints() {
@@ -468,14 +476,37 @@ $(document).ready(function () {
         files = Array.prototype.slice.call(this.files);
         numFiles = files.length;
         clearAll();
+        console.log(numFiles + " loaded...");
         updateImgData(files[0]);
     });
 
-    $("#advance").click(function () {
+    // A terrible hack to trigger a file download...
+    $("#dump-traces").on('click', function() {
+      savePoints();
+      // add tracer $("#tracer-id")
+      var traceData = JSON.stringify(tracedFiles);
+      console.log(traceData);
+
+      $.ajax({
+        type: "POST",
+        contentType: "application/json; charset=utf-8",
+        dataType: 'text',
+        //dataType: "json",
+        url: "/trace-data",
+        data: traceData,
+        success: function (response) {
+          console.log("success!");
+          window.open(response, 'Download');
+          //return response
+        },
+      });
+    });
+
+    $("#advance").on('click', function () {
         nextImage();
     });
 
-    $("#back").click(function () {
+    $("#back").on('click', function () {
         previousImage();
     });
 

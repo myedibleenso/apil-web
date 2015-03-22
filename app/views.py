@@ -1,9 +1,12 @@
-from flask import render_template, flash, redirect, session, url_for, request, g
+from flask import render_template, flash, redirect, session, url_for, request, g, make_response, send_file, send_from_directory, Response
+import os
 #from flask.ext.login import login_user, logout_user, current_user, login_required
 from app import app, db
 from .forms import LoginForm
 from .models import User
+from config import basedir
 
+UPLOADS_DIR = os.path.join(basedir, app.config['UPLOAD_FOLDER'])
 
 @app.route('/')
 @app.route('/index')
@@ -24,6 +27,30 @@ def trace():
     return render_template('draw.html',
                            title='Trace')
 
+@app.route('/trace-data', methods = ['POST'])
+def dump_data():
+    print "in function..."
+    print request
+    #data = request.json['data']
+    data = request.data
+    print "REQUEST: {}".format(request)
+    print "DATA: {0}".format(data)
+    file_name = 'traces.json'
+    # Can't just
+    file_path = os.path.join(UPLOADS_DIR, file_name)
+    print file_path
+    with open(file_path,"wb") as out:
+        out.write(data)
+    print "returning response..."
+    return '/downloads/{0}'.format(file_name)
+
+
+@app.route('/downloads/<filename>')
+def serve_file(filename):
+    return Response(open(os.path.join(UPLOADS_DIR, filename), 'rb').read(),
+                       mimetype="text/plain",
+                       headers={"Content-Disposition":
+                                    "attachment;filename={0}".format(filename)})
 
 if __name__ == '__main__':
     app.debug = True
