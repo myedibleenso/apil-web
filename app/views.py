@@ -1,5 +1,6 @@
 from flask import render_template, flash, redirect, session, url_for, request, g, make_response, send_file, send_from_directory, Response
 import os
+import logging
 #from flask.ext.login import login_user, logout_user, current_user, login_required
 from app import app, db
 from .forms import LoginForm
@@ -33,16 +34,16 @@ def dump_data():
     print request
     #data = request.json['data']
     data = request.data
-    print "REQUEST: {}".format(request)
+    app.logger.info("REQUEST: {}".format(request))
     print "DATA: {0}".format(data)
     file_name = 'traces.json'
     # Can't just
     file_path = os.path.join(UPLOADS_DIR, file_name)
-    print file_path
+    app.logger.info(file_path)
     with open(file_path,"wb") as out:
         out.write(data)
-    print "returning response..."
-    return '/downloads/{0}'.format(file_name)
+    app.logger.info("returning response...")
+    return 'downloads/{0}'.format(file_name)
 
 
 @app.route('/downloads/<filename>')

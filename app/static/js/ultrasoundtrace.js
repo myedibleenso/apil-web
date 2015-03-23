@@ -492,7 +492,7 @@ $(window).load(function () {
         contentType: "application/json; charset=utf-8",
         dataType: 'text',
         //dataType: "json",
-        url: "/trace-data",
+        url: "trace-data",
         data: traceData,
         success: function (response) {
           console.log("success!");
