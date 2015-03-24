@@ -1,6 +1,6 @@
 # apil-web
 
-#### http://parsertongue.com/apil/  
+#### http://apil.parsertongue.com
 
 ## How to run the app
 ## Install `virtualenv` for python 2.7.x
