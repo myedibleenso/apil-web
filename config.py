@@ -9,7 +9,7 @@ UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = set(['txt', 'csv', 'png', 'jpg', 'jpeg', 'json'])
 
 WTF_CSRF_ENABLED = True
-#SECRET_KEY = 'poop'
+SECRET_KEY = 'poop'
 
 #OPENID_PROVIDERS = [
 #    {'name': 'Google', 'url': 'https://www.google.com/accounts/o8/id'},

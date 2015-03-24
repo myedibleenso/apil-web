@@ -1,9 +1,10 @@
-from flask import render_template, flash, redirect, session, url_for, request, g, make_response, send_file, send_from_directory, Response
+from flask import render_template, flash, redirect, session, url_for, request, g, make_response, send_file, send_from_directory, Response, Markup
 import os
 import logging
+import json
 #from flask.ext.login import login_user, logout_user, current_user, login_required
 from app import app, db
-from .forms import LoginForm
+from .forms import TraceForm
 from .models import User
 from config import basedir
 
@@ -23,27 +24,30 @@ def page_not_found(error):
 #def special_exception_handler(error):
 #    return 'Database connection failed', 500
 
-@app.route('/draw')
+@app.route('/draw', methods = ['GET', 'POST'])
 def trace():
-    return render_template('draw.html',
-                           title='Trace')
+    # trace set meta data
+    form = TraceForm()
+    if request.method == 'POST' and form.validate():
+        form = request.form
 
-@app.route('/trace-data', methods = ['POST'])
-def dump_data():
-    print "in function..."
-    print request
-    #data = request.json['data']
-    data = request.data
-    app.logger.info("REQUEST: {}".format(request))
-    print "DATA: {0}".format(data)
-    file_name = 'traces.json'
-    # Can't just
-    file_path = os.path.join(UPLOADS_DIR, file_name)
-    app.logger.info(file_path)
-    with open(file_path,"wb") as out:
-        out.write(data)
-    app.logger.info("returning response...")
-    return 'downloads/{0}'.format(file_name)
+        #we'll write json
+        data = json.loads(form['data'])
+        num_files = len(data)
+
+        data['tracer-id'] = form['name']
+        data['subject-id'] = form['subject']
+        data['project-id'] = form['project_id']
+
+        flash("Got {0}'s {1} trace data for {2} files!".format(data['subject-id'], data['project-id'], num_files))
+
+        return Response(json.dumps(data),
+                           mimetype="text/plain",
+                           headers={"Content-Disposition":
+                                        "attachment;filename={0}".format('traces.json')})
+    #must be a GET...
+    return render_template('draw.html',
+                           title='Trace', form=form)
 
 
 @app.route('/downloads/<filename>')

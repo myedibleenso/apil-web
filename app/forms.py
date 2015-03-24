@@ -1,7 +1,10 @@
 from flask.ext.wtf import Form
-from wtforms import StringField, BooleanField
-from wtforms.validators import DataRequired
+from wtforms import StringField, SubmitField, HiddenField
+from wtforms.validators import Required
 
-class LoginForm(Form):
-    openid = StringField('openid', validators=[DataRequired()])
-    remember_me = BooleanField('remember_me', default=False)
+class TraceForm(Form):
+    name = StringField('Tracer ID', id='tracer', validators=[Required()])
+    subject = StringField('Subject', id='subject')
+    project_id = StringField('Project ID', id='project', validators=[Required()])
+    data = HiddenField(id='trace-data')
+    submit = SubmitField('Get traces', id='dump-traces')

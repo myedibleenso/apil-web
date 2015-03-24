@@ -1,5 +1,6 @@
 <!-- extend base layout -->
 {% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
 
 {% block title %}APIL{% endblock %}
 {% block head -%}
@@ -117,18 +118,16 @@
 
     <div class="row top-buffer">
 
-        <div class="col-md-10 container-fluid">
-            <input id="tracer-id" type="text" class="col-md-offset-0 input-medium" placeholder="Tracer ID">
+        <div class="col-md-8 container-fluid">
             <span id="image-name" class="col-md-offset-1 lead">frame-0014430.png</span>
             <span id="image-num" class="col-md-offset-2 lead text-muted text-right">1 of 1</span>
         </div>
     </div>
 
-        <button id="dump-traces" class="btn btn-default">
-            <span class="glyphicon glyphicon-download"></span>
-            Dump Traces
-        </button>
+    {{ wtf.quick_form(form) }}
+            <!--<span class="glyphicon glyphicon-download"></span>-->
 </div>
+{% include 'flash.html' %}
 </div>
 
 <!-- <input type="button" id="clickMe" value="clickme" onclick="previewFile();" /> -->

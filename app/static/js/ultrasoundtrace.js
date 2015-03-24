@@ -455,23 +455,6 @@ $(window).load(function () {
         updateImgData(f)
     }
 
-    $('#tracer-id').focus(function () {
-        var tracerID = $("#tracer-id");
-
-        tracerID.css("background", "white");
-        tracerID.val('');
-        tracerID.css("text-align", "left");
-
-        tracerID.keypress(function (e) {
-            if (e.which == 13) {
-                tracerID.blur();
-                // change style
-                tracerID.css("background", "lavender");
-                tracerID.css("text-align", "center");
-            }
-        });
-    });
-
     $("#image-files").on('change', function (e) {
         files = Array.prototype.slice.call(this.files);
         numFiles = files.length;
@@ -486,20 +469,11 @@ $(window).load(function () {
       // add tracer $("#tracer-id")
       var traceData = JSON.stringify(tracedFiles);
       console.log(traceData);
+      // JQuery doesn't work here...
+      document.getElementById("trace-data").value = traceData;
+      //$('trace-data').val(traceData);
+      console.log($('trace-data').val())
 
-      $.ajax({
-        type: "POST",
-        contentType: "application/json; charset=utf-8",
-        dataType: 'text',
-        //dataType: "json",
-        url: "trace-data",
-        data: traceData,
-        success: function (response) {
-          console.log("success!");
-          window.open(response, 'Download');
-          //return response
-        },
-      });
     });
 
     $("#advance").on('click', function () {
