@@ -132,7 +132,7 @@ $(window).load(function () {
     }
 
     function uniquePoints(points) {
-        return _.uniq(points, function (newPoint) {return newPoint.x}); // get rid of duplicates.
+        return _.uniq(points, function (newPoint) {return newPoint.x; }); // get rid of duplicates.
     }
 
     function filterPoints() {
@@ -307,7 +307,7 @@ $(window).load(function () {
             // smooth until convergence
             if (smoothed(points) == false) smooth(points);
         }
-        return points;
+        return uniquePoints(points);
     }
 
     function smoothAndRedraw() {
