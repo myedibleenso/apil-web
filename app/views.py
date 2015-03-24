@@ -32,7 +32,13 @@ def trace():
         form = request.form
 
         #we'll write json
-        data = json.loads(form['data'])
+        try:
+            data = json.loads(form['data'])
+            app.logger.info("{0} traces found.".format(len(data)))
+        except:
+            data = dict()
+            app.logger.error("No traces found!")
+
         num_files = len(data)
 
         data['tracer-id'] = form['name']

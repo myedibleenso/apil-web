@@ -469,10 +469,8 @@ $(window).load(function () {
       // add tracer $("#tracer-id")
       var traceData = JSON.stringify(tracedFiles);
       console.log(traceData);
-      // JQuery doesn't work here...
-      document.getElementById("trace-data").value = traceData;
-      //$('trace-data').val(traceData);
-      console.log($('trace-data').val())
+      $('#trace-data').val(traceData);
+      console.log($('#trace-data').val())
 
     });
 
