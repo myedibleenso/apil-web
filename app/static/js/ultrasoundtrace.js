@@ -47,9 +47,6 @@ $(window).load(function () {
         "\n")
     }
 
-    // start with the pen as active
-    //$("#pen")[0].trigger( "click" );
-    setButtonActive($("#pen")[0]);
 
     var isDrawing;
 
@@ -258,6 +255,7 @@ $(window).load(function () {
                 break;
             case "roi":
                 handleRoI(e);
+                //mode = "pen";
                 break;
             case "eraser":
                 erase(e);
@@ -336,20 +334,16 @@ $(window).load(function () {
             'cursor': 'crosshair'
         });
         mode = "pen";
-        setButtonActive(this);
-        //setColor(this, '#fff200');
     });
 
-    $("#roi").click(function () {
+    $("#constrain-roi").click(function () {
         $('#tracearea').css({
             'cursor': 'crosshair'
         });
         mode = "roi";
-        setButtonActive(this);
-        //setColor(this, '#fff200');
     });
 
-    $("#max-roi").click(function () {
+    $("#maximize-roi").click(function () {
         resetRoI();
     });
 
@@ -359,15 +353,8 @@ $(window).load(function () {
         });
         mode = "eraser";
         setButtonActive(this);
-        //setColor(this, '#fff200');
     });
 
-    function setButtonActive(btn) {
-        // deselect other buttons
-        //$(".button").css("background-color","#E3E1B8");
-        $("btn-primary").button('toggle');
-        //btn.style.backgroundColor = "#9999ff";
-    }
 
 //};
 
@@ -458,12 +445,29 @@ $(window).load(function () {
         updateImgData(f)
     }
 
-    $("#image-files").on('change', function (e) {
+    $("#load-image-data").on('click', function() {
+      $("#load-images").trigger('click');
+    });
+
+    $("#load-images").on('change', function (e) {
         files = Array.prototype.slice.call(this.files);
         numFiles = files.length;
         clearAll();
         console.log(numFiles + " loaded...");
         updateImgData(files[0]);
+    });
+
+    $("#load-trace-data").on('click', function() {
+      $("#load-traces").trigger('click');
+    });
+
+    $("#load-traces").on('change', function (e) {
+        //Get first file in files Array
+        traceFile = $("#load-traces").prop('files')[0];
+        $.getJSON(createObjectURL(traceFile), function(json) {
+          console.log("trace data: " + JSON.stringify(json));
+        });
+        //TODO: Read json data into script props.
     });
 
     // A terrible hack to trigger a file download...
@@ -503,5 +507,3 @@ $(window).load(function () {
         e.preventDefault();
     });
 });
-
-//JSON.stringify(contextPoints, undefined, 2);

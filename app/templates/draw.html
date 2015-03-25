@@ -87,14 +87,16 @@
                 <span class="glyphicon glyphicon-pencil"></span>
                 Pen
             </button>
-            <button id="roi" class="btn btn-primary" type="button">
-                <span class="glyphicon glyphicon-resize-small"></span>
-                R o I
-            </button>
-            <button id="max-roi" class="btn btn-primary" type="button">
-                <span class="glyphicon glyphicon-resize-full"></span>
-                Max
-            </button>
+
+              <div class="btn-group"> <i class="dropdown-arrow dropdown-arrow-inverse"></i>
+                <button id="roi" class="btn btn-primary">R o I</button>
+                <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"> <span class="caret"></span> </button>
+                <ul class="dropdown-menu dropdown-inverse">
+                  <li><a id="maximize-roi" href="#max-roi"><span class="glyphicon glyphicon-resize-full"></span> maximize</a></li>
+                  <li><a id="constrain-roi" href="#constrain-roi"><span class="glyphicon glyphicon-resize-small"></span> constrain</a></li>
+                </ul>
+              </div>
+
             <button id="eraser" class="btn btn-info" type="button">
                 <span class="fa fa-eraser"></span>
                 Eraser
@@ -110,11 +112,22 @@
             <button id="advance" class="btn btn-inverse" type="button">Next
                 <span class="glyphicon glyphicon-arrow-right"></span>
             </button>
-      <span class="btn btn-default btn-file">
-    Select Images <input type="file" id="image-files" multiple accept="image/*"/>
-</span>
-        </div>
-    </div>
+
+            <div class="btn-group"> <i class="dropdown-arrow dropdown-arrow-inverse"></i>
+              <button id="load-data" class="btn btn-primary">Load</button>
+              <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown"> <span class="caret"></span> </button>
+              <ul class="dropdown-menu dropdown-inverse">
+                <li><a id="load-image-data" href="#load-images"><span class="fa fa-picture-o"></span>  Images</a></li>
+                <li><a id="load-trace-data" href="#load-traces"><span class="fa fa-ellipsis-h"></span>  Traces</a></li>
+              </ul>
+            </div>
+      </div>
+  </div>
+
+<div hidden>
+  <input type="file" id="load-images" multiple accept="image/*"/>
+  <input type="file" id="load-traces" accept="application/json"/>
+</div>
 
     <div class="row top-buffer">
 
