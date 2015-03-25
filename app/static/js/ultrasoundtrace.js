@@ -466,8 +466,16 @@ $(window).load(function () {
         traceFile = $("#load-traces").prop('files')[0];
         $.getJSON(createObjectURL(traceFile), function(json) {
           console.log("trace data: " + JSON.stringify(json));
+          console.log("trace data: " + JSON.stringify(json['tracer-id']));
+          console.log("subject-id " + JSON.stringify(json['subject-id']));
+          console.log("project-id: " + JSON.stringify(json['project-id']));
+          console.log("roi: " + JSON.stringify(json['roi']));
         });
         //TODO: Read json data into script props.
+        //console.log("trace data: " + JSON.stringify(json['tracer-id']));
+        //console.log("subject-id " + JSON.stringify(json['subject-id']));
+        //console.log("project-id: " + JSON.stringify(json['project-id']));
+        //console.log("roi: " + JSON.stringify(json['roi']));
     });
 
     // A terrible hack to trigger a file download...
