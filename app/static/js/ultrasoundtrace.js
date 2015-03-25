@@ -113,15 +113,12 @@ $(window).load(function () {
             var currentCoords = getMousePos(canvas, e);
             updateRoI(startCoords, currentCoords);
             redraw();
-            //console.log("attempted to draw RoI... ");
-
         };
 
     }
 
     function withinRoI(point) {
         //displayRoICoords();
-        //console.log("x = " + point.x + "\ny = " + point.y)
 
         return (
         (point.x > roi.srcX) &&
@@ -168,8 +165,11 @@ $(window).load(function () {
         canvas.onmouseup = function () {
             isDrawing = false;
             //context.beginPath();
+            console.log("getting unique points...");
             newPoints = uniquePoints(newPoints);
+            console.log("smoothing " + newPoints.length + " unique points...");
             newPoints = smooth(newPoints);
+            console.log("starting something weird...");
 
             _.each(newPoints, function (newPoint) {
                 points = _.filter(points, function (oldPoint) {
@@ -177,11 +177,13 @@ $(window).load(function () {
                 });
             });
 
+            console.log("joining points...");
             points = points.concat(newPoints);
             newPoints = [];
             //points = _.uniq(points.reverse(), function (point) {
             //    return point.x
             //});
+            console.log("starting to SmoothAndRedraw");
             smoothAndRedraw();
             console.log("total points: " + points.length);
         };
@@ -290,11 +292,12 @@ $(window).load(function () {
         if (points.length != 0) {
             // sort them before doing anything
             points = sortPoints(points);
+            //console.log("sorted " + points.length + " points...");
             var smoothedPoints = [];
             for (var i = 0; i < points.length - 1; i++) {
                 var currentPoint = points[i];
                 var nextPoint = points[i + 1];
-                if (Math.abs(currentPoint.x - nextPoint.y) > 1) {
+                if (Math.abs(currentPoint.x - nextPoint.x) > 1) {
                     var midPoint = {
                         x: parseInt((currentPoint.x + nextPoint.x) / 2),
                         y: parseInt((currentPoint.y + nextPoint.y) / 2)
@@ -315,8 +318,8 @@ $(window).load(function () {
     }
 
     function smoothAndRedraw() {
-
-        points = smooth(points);
+        points = uniquePoints(points);
+        points = smooth(uniquePoints(points));
         redraw();
     }
 
@@ -389,9 +392,6 @@ $(window).load(function () {
 
         canvas.width = width;
         canvas.height = height;
-        //console.log("loaded " + lastImage.src);
-        //console.log("image width: " + width + "\nimage height: " + height);
-
 
     }
 
@@ -455,7 +455,6 @@ $(window).load(function () {
         }
         var f = files[idx - 1];
         idx -= 1;
-        //console.log("numFiles: "+numFiles + "\nidx: "+ idx);
         updateImgData(f)
     }
 
