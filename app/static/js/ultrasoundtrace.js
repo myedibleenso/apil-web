@@ -20,6 +20,9 @@ $(window).load(function () {
 
     canvas = $("#tracearea")[0];
     context = canvas.getContext("2d");
+    // after canvas has been defined...
+    var roi = maximizeRoI();
+    displayRoICoords();
     //context.setLineDash([10]);
 
     function setPenContext() {
@@ -164,25 +167,19 @@ $(window).load(function () {
         canvas.onmouseup = function () {
             isDrawing = false;
             //context.beginPath();
-            console.log("getting unique points...");
             newPoints = uniquePoints(newPoints);
-            console.log("smoothing " + newPoints.length + " unique points...");
+            //console.log("smoothing " + newPoints.length + " unique points...");
             newPoints = smooth(newPoints);
-            console.log("starting something weird...");
 
+            //Prefer the new points...
             _.each(newPoints, function (newPoint) {
                 points = _.filter(points, function (oldPoint) {
                     return oldPoint.x != newPoint.x
                 });
             });
 
-            console.log("joining points...");
             points = points.concat(newPoints);
             newPoints = [];
-            //points = _.uniq(points.reverse(), function (point) {
-            //    return point.x
-            //});
-            console.log("starting to SmoothAndRedraw");
             smoothAndRedraw();
             console.log("total points: " + points.length);
         };
@@ -472,7 +469,9 @@ $(window).load(function () {
         $.getJSON(createObjectURL(traceFile), function(json) {
 
           // Load roi data
-          //roi = json['roi'];
+          roi = $.parseJSON(json['roi']);
+          console.log("loaded RoI...");
+          displayRoICoords();
           //console.log("roi from file: " + roi)
           // drawRoI();
 
