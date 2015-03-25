@@ -1,6 +1,6 @@
 // Gus Hahn-Powell Dec, 2014
 // TODO: add palate pen & points
-// TODO: add RoI
+
 // Added button glyphs, arrow key actions & automatic smoothing
 $(window).load(function () {
     // avoid the circa 1990 look while loading...
@@ -284,8 +284,11 @@ $(window).load(function () {
         return true
     }
 
+    //Uses a recursive call to ensure distance between contiguous points (i.e. n & n+1) is never greater than 1.
     function smooth(points) {
+        // do we have points?
         if (points.length != 0) {
+            // sort them before doing anything
             points = sortPoints(points);
             var smoothedPoints = [];
             for (var i = 0; i < points.length - 1; i++) {
@@ -305,6 +308,7 @@ $(window).load(function () {
             smoothedPoints.push(_.last(points));
             points = smoothedPoints;
             // smooth until convergence
+            // TODO: is this working as expected?
             if (smoothed(points) == false) smooth(points);
         }
         return uniquePoints(points);
@@ -468,6 +472,8 @@ $(window).load(function () {
       savePoints();
       // add tracer $("#tracer-id")
       var traceData = JSON.stringify(tracedFiles);
+      var roiData = JSON.stringify(roi);
+      $('#roi-data').val(roiData);
       console.log(traceData);
       $('#trace-data').val(traceData);
       console.log($('#trace-data').val())

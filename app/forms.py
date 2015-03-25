@@ -7,4 +7,5 @@ class TraceForm(Form):
     subject = StringField('Subject', id='subject')
     project_id = StringField('Project ID', id='project', validators=[Required()])
     data = HiddenField(id='trace-data')
+    roi = HiddenField(id='roi-data')
     submit = SubmitField('Get traces', id='dump-traces')

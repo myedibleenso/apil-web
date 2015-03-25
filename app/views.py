@@ -44,9 +44,9 @@ def trace():
         data['tracer-id'] = form['name']
         data['subject-id'] = form['subject']
         data['project-id'] = form['project_id']
-
+        data['roi'] = form['roi']
+        
         flash("Got {0}'s {1} trace data for {2} files!".format(data['subject-id'], data['project-id'], num_files))
-
         return Response(json.dumps(data),
                            mimetype="text/plain",
                            headers={"Content-Disposition":
