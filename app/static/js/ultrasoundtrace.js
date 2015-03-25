@@ -13,6 +13,8 @@ $(window).load(function () {
     var newPoints = [];
     var contextPoints = {};
     var tracedFiles = {};
+    var imageFiles = [];
+    var currentImageName = "";
 
     var mode = "pen";
 
@@ -370,7 +372,7 @@ $(window).load(function () {
         lastImage.onload = function () {
             context.drawImage(lastImage, 0, 0);
             // need to do this inside or we'll lose it...
-            if (idx in contextPoints) {
+            if (currentImageName in contextPoints) {
                 loadPoints();
             }
         };
@@ -383,6 +385,7 @@ $(window).load(function () {
     }
 
     function updateName(f) {
+        currentImageName = f.name;
         $("#image-name")[0].textContent = f.name;
     }
 
@@ -392,33 +395,33 @@ $(window).load(function () {
 
     function deletePoints() {
         points = [];
-        if (idx in contextPoints) {
-            delete contextPoints[idx];
+        if (currentImageName in contextPoints) {
+            delete contextPoints[currentImageName];
         }
     }
 
     function savePoints() {
       if (!_.isEmpty(points)) {
-        contextPoints[idx] = points;
+        contextPoints[currentImageName] = points;
         if (files.length > 0) {
-          var fname = files[idx].name;
-          tracedFiles[fname] = points;
-          console.log("file: " + fname);
+          //var fname = files[idx].name;
+          //tracedFiles[fname] = points;
+          console.log("file: " + currentImageName);
         }
       }
     }
 
     function loadPoints() {
-        if (idx in contextPoints) {
-            points = contextPoints[idx];
+        if (currentImageName in contextPoints) {
+            points = contextPoints[currentImageName];
             redraw();
         }
     }
 
     function updateImgData(f) {
         updateIdxNum();
-        changeImg(createObjectURL(f));
         updateName(f);
+        changeImg(createObjectURL(f));
     }
 
     function nextImage() {
@@ -451,6 +454,8 @@ $(window).load(function () {
 
     $("#load-images").on('change', function (e) {
         files = Array.prototype.slice.call(this.files);
+        imageFiles = _.map(files, function(f){ return f.name; });
+        console.log("images: " + imageFiles);
         numFiles = files.length;
         clearAll();
         console.log(numFiles + " loaded...");
@@ -465,24 +470,35 @@ $(window).load(function () {
         //Get first file in files Array
         traceFile = $("#load-traces").prop('files')[0];
         $.getJSON(createObjectURL(traceFile), function(json) {
-          console.log("trace data: " + JSON.stringify(json));
-          console.log("trace data: " + JSON.stringify(json['tracer-id']));
-          console.log("subject-id " + JSON.stringify(json['subject-id']));
-          console.log("project-id: " + JSON.stringify(json['project-id']));
-          console.log("roi: " + JSON.stringify(json['roi']));
+
+          // Load roi data
+          //roi = json['roi'];
+          //console.log("roi from file: " + roi)
+          // drawRoI();
+
+          // Load trace data
+          var traced = json['trace-data'];
+          for (imgID in traced) {
+            if (!contextPoints.hasOwnProperty(imgID)) {contextPoints[imgID] = traced[imgID]}
+          }
+          loadPoints();
+          console.log("# traced images: "+ _.size(contextPoints));
+          console.log("traced images: "+ _.size(contextPoints));
+          // Load tracer id
+          $("#tracer").val(json['tracer-id']);
+          // Load subject id
+          $("#subject").val(json['subject-id']);
+          // Load project id
+          $("#project").val(json['project-id']);
         });
         //TODO: Read json data into script props.
-        //console.log("trace data: " + JSON.stringify(json['tracer-id']));
-        //console.log("subject-id " + JSON.stringify(json['subject-id']));
-        //console.log("project-id: " + JSON.stringify(json['project-id']));
-        //console.log("roi: " + JSON.stringify(json['roi']));
     });
 
     // A terrible hack to trigger a file download...
     $("#dump-traces").on('click', function() {
       savePoints();
       // add tracer $("#tracer-id")
-      var traceData = JSON.stringify(tracedFiles);
+      var traceData = JSON.stringify(contextPoints);
       var roiData = JSON.stringify(roi);
       $('#roi-data').val(roiData);
       console.log(traceData);
