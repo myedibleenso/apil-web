@@ -334,7 +334,7 @@ $(window).load(function () {
 
     $("#eraser").click(function () {
         $('#tracearea').css({
-            'cursor': 'url(static/images/circle.cur) 2 -1, crosshair'
+            'cursor': 'url(static/images/dotted-line.cur) 2 -1, crosshair'
         });
         mode = "eraser";
         //setButtonActive(this);
