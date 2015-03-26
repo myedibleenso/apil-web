@@ -154,6 +154,7 @@ $(window).load(function () {
             if (isDrawing) {
                 var coords = getMousePos(canvas, e);
                 if (withinRoI(coords) == true) {
+                    //var previous = _.last(newPoints);
                     newPoints.push(coords);
                     context.lineTo(coords.x, coords.y);
                     context.stroke();
@@ -182,6 +183,7 @@ $(window).load(function () {
             newPoints = [];
             smoothAndRedraw();
             console.log("total points: " + points.length);
+            console.log("current points: " + JSON.stringify(points));
         };
     }
 
@@ -209,6 +211,7 @@ $(window).load(function () {
         });
     }
 
+    // TODO: Change eraser so that any points with x values matching erased span are thrown out
     function erase(e) {
         toErase = [];
         toErase.push(getMousePos(canvas, e));
@@ -218,31 +221,15 @@ $(window).load(function () {
         };
 
         // we're using an eraser
-        function comparePoints(valid, invalid) {
-            //console.log("valid x, y:" + valid.x + ", " + valid.y + "\ninvalid x, y: " + invalid.x + ", " + invalid.y);
-            return ((Math.abs(invalid.x - valid.x) <= 2) && (Math.abs(invalid.y - valid.y) <= 4)) ? true : false;
-        }
-
         canvas.onmouseup = function () {
-
-            var remainingPoints = [];
-            for (var j = 0; j < points.length; j++) {
-                var isValid = true;
-                var valid = points[j];
-                for (var i = 0; i < toErase.length; i++) {
-                    var invalid = toErase[i];
-                    if (comparePoints(valid, invalid) == true) {
-                        isValid = false;
-                        break
-                    }
-                }
-                if (isValid == true) {
-                    remainingPoints.push(valid);
-                }
+            toErase = smooth(toErase);
+            for (var j = 0; j < toErase.length; j++) {
+              console.log("eraseable " + j);
+              var erasable = toErase[j];
+              points = _.filter(points, function(point) {return  erasable.x != point.x; });
             }
-
-            points = remainingPoints;
-            redraw();
+            points = smooth(points);
+            smoothAndRedraw();
         };
     }
 
@@ -294,29 +281,28 @@ $(window).load(function () {
             for (var i = 0; i < points.length - 1; i++) {
                 var currentPoint = points[i];
                 var nextPoint = points[i + 1];
+                // keep the current point
+                smoothedPoints.push(currentPoint);
                 if (Math.abs(currentPoint.x - nextPoint.x) > 1) {
                     var midPoint = {
                         x: parseInt((currentPoint.x + nextPoint.x) / 2),
                         y: parseInt((currentPoint.y + nextPoint.y) / 2)
                     };
-                    smoothedPoints.push(currentPoint);
+                    // keep this new point
                     smoothedPoints.push(midPoint);
-                } else {
-                    smoothedPoints.push(currentPoint);
                 }
             }
+            // don't forget about the last point
             smoothedPoints.push(_.last(points));
             points = smoothedPoints;
-            // smooth until convergence
-            // TODO: is this working as expected?
-            if (smoothed(points) == false) smooth(points);
         }
-        return uniquePoints(points);
+        // smooth until convergence
+        return (smoothed(points) == false) ? smooth(points) : uniquePoints(points);
     }
 
     function smoothAndRedraw() {
         points = uniquePoints(points);
-        points = smooth(uniquePoints(points));
+        points = smooth(points);
         redraw();
     }
 
@@ -351,7 +337,7 @@ $(window).load(function () {
             'cursor': 'url(static/images/circle.cur) 2 -1, crosshair'
         });
         mode = "eraser";
-        setButtonActive(this);
+        //setButtonActive(this);
     });
 
 
