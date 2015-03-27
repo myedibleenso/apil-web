@@ -8,21 +8,20 @@ $(window).load(function () {
     var files = [];
     var idx = 0;
     var numFiles = files.length;
-    var lastImage = new Image();
+    var currentImage = new Image();
     var points = [];
+    var roi = {};
     var newPoints = [];
     var contextPoints = {};
     var tracedFiles = {};
     var imageFiles = [];
-    var currentImageName = "";
+    var currentImageName = "do-not-save.png";
 
     var mode = "pen";
 
     canvas = $("#tracearea")[0];
     context = canvas.getContext("2d");
     // after canvas has been defined...
-    var roi = maximizeRoI();
-    displayRoICoords();
     //context.setLineDash([10]);
 
     function setPenContext() {
@@ -40,9 +39,10 @@ $(window).load(function () {
     }
 
     // Run this after the context has been set
-    changeImg("static/images/frame-0014430.png");
+    changeImg("static/images/do-not-save.png");
 
-    var roi = maximizeRoI();
+    roi = maximizeRoI();
+    displayRoICoords();
 
     function displayRoICoords() {
         console.log("left X  = " + roi.srcX +
@@ -115,8 +115,10 @@ $(window).load(function () {
             var currentCoords = getMousePos(canvas, e);
             updateRoI(startCoords, currentCoords);
             redraw();
+            // after one use of RoI constrainer return to pen
+            $("#pen").trigger('click');
+            mode = "pen";
         };
-
     }
 
     function withinRoI(point) {
@@ -182,8 +184,7 @@ $(window).load(function () {
             points = points.concat(newPoints);
             newPoints = [];
             smoothAndRedraw();
-            console.log("total points: " + points.length);
-            console.log("current points: " + JSON.stringify(points));
+            //console.log("current points: " + JSON.stringify(points));
         };
     }
 
@@ -251,7 +252,7 @@ $(window).load(function () {
 
     function clear() {
         context.clearRect(0, 0, canvas.width, canvas.height);
-        context.drawImage(lastImage, 0, 0);
+        context.drawImage(currentImage, 0, 0);
     }
 
     function clearAll() {
@@ -304,6 +305,7 @@ $(window).load(function () {
         points = uniquePoints(points);
         points = smooth(points);
         redraw();
+        savePoints();
     }
 
     $("#clear").click(function () {
@@ -323,7 +325,7 @@ $(window).load(function () {
 
     $("#constrain-roi").click(function () {
         $('#tracearea').css({
-            'cursor': 'crosshair'
+            'cursor': 'url(static/images/roi.cur) 2 -1, crosshair'
         });
         mode = "roi";
     });
@@ -348,21 +350,20 @@ $(window).load(function () {
     function changeImg(imagePath) {
         context.clearRect(0, 0, canvas.width, canvas.height);
 
-        lastImage.src = imagePath;
+        currentImage.src = imagePath;
 
-        lastImage.onload = function () {
-            context.drawImage(lastImage, 0, 0);
+        currentImage.onload = function () {
+            context.drawImage(currentImage, 0, 0);
             // need to do this inside or we'll lose it...
             if (currentImageName in contextPoints) {
                 loadPoints();
             }
         };
-        var width = parseInt(lastImage.width);
-        var height = parseInt(lastImage.height);
+        var width = parseInt(currentImage.width);
+        var height = parseInt(currentImage.height);
 
         canvas.width = width;
         canvas.height = height;
-
     }
 
     function updateName(f) {
@@ -377,19 +378,16 @@ $(window).load(function () {
     function deletePoints() {
         points = [];
         if (currentImageName in contextPoints) {
-            delete contextPoints[currentImageName];
+          console.log("deleting points for " + currentImageName);
+          delete contextPoints[currentImageName];
         }
     }
 
     function savePoints() {
-      if (!_.isEmpty(points)) {
-        contextPoints[currentImageName] = points;
-        if (files.length > 0) {
-          //var fname = files[idx].name;
-          //tracedFiles[fname] = points;
-          console.log("file: " + currentImageName);
+      if (!_.isEmpty(points) && files.length > 0) {
+          contextPoints[currentImageName] = points;
+          console.log("saving " + points.length +" points for "+ currentImageName);
         }
-      }
     }
 
     function loadPoints() {
@@ -406,7 +404,6 @@ $(window).load(function () {
     }
 
     function nextImage() {
-        savePoints();
         points = [];
         if (idx == 0 && numFiles == 0) return alert("No images selected!");
         if (idx + 1 > numFiles - 1) {
@@ -418,7 +415,6 @@ $(window).load(function () {
     }
 
     function previousImage() {
-        savePoints();
         points = [];
         if (idx == 0 && numFiles == 0) return alert("No images selected!");
         if (idx == 0) {
@@ -454,13 +450,32 @@ $(window).load(function () {
         e.preventDefault();
     });
 
+
+    function launchModal(prevFiles) {
+      console.log("# of Image files: " + imageFiles.length);
+      console.log("# of old file names: " + prevFiles.length);
+      var diff = _.difference(imageFiles, prevFiles);
+      console.log("diff: " + diff);
+      if (!_.isEqual(imageFiles, prevFiles)) {
+        console.log("Launching modal...");
+        var missingFiles = prevFiles.join("\n");
+        $("#missing-files").text(missingFiles);
+
+        titleText = "Missing " + prevFiles.length + " images";
+        console.log(titleText)
+        $("#missing-images-title").text(titleText);
+
+        $('#missing-images-modal').modal('show');
+      }
+    }
+
     function loadImages(files) {
       imageFiles = _.map(files, function(f){ return f.name; });
-      console.log("images: " + imageFiles);
       numFiles = files.length;
+      console.log(numFiles + " images loaded: " + imageFiles);
       clearAll();
-      console.log(numFiles + " loaded...");
       updateImgData(files[0]);
+      redraw();
     }
 
     function loadTraces(traced) {
@@ -492,15 +507,12 @@ $(window).load(function () {
           // Load roi data
           roi = $.parseJSON(json['roi']);
           console.log("loaded RoI...");
-          displayRoICoords();
-          //console.log("roi from file: " + roi)
-          // drawRoI();
+          console.log("roi from file: " + JSON.stringify(roi));
 
           // Load trace data
           var traced = json['trace-data'];
           loadTraces(traced);
 
-          console.log("# traced images: "+ _.size(contextPoints));
           console.log("traced images: "+ _.size(contextPoints));
           // Load tracer id
           $("#tracer").val(json['tracer-id']);
@@ -508,6 +520,8 @@ $(window).load(function () {
           $("#subject").val(json['subject-id']);
           // Load project id
           $("#project").val(json['project-id']);
+
+          launchModal(Object.keys(traced));
         });
         //TODO: Read json data into script props.
     });
@@ -515,7 +529,7 @@ $(window).load(function () {
     // Save data
     $("#dump-traces").on('click', function() {
       console.log("saving traces.json...");
-      savePoints();
+      //savePoints();
       var traceData = JSON.stringify(contextPoints);
       var roiData = JSON.stringify(roi);
       $('#roi-data').val(roiData);
@@ -525,40 +539,61 @@ $(window).load(function () {
     // Clear previous data
     $("#clear-prev-data").on('click', function() {
       console.log("clearing previously saved data...");
-      $.cookie('trace-data', null);
-      $.cookie('roi-data', null);
-      //$.cookie('images', null);
-      $.cookie('tracer-id', null);
-      $.cookie('subject-id', null);
-      $.cookie('project-id', null);
+      localStorage.removeItem('trace-data');
+      localStorage.removeItem('roi-data');
+      localStorage.removeItem('images');
+      localStorage.removeItem('tracer-id');
+      localStorage.removeItem('subject-id');
+      localStorage.removeItem('project-id');
     });
+
 
     // Load previous data
+    // TODO: fix modal launch (also check when uploading trace data)
+
     $("#load-prev-data").on('click', function() {
-      console.log("loading previously saved data...");
-      //files = $.cookie('images');
-      //loadImages(files);
 
-      roi = $.cookie('roi-data');
-      displayRoICoords();
+      var oldFileNames = JSON.parse(localStorage.getItem('images'));
+      console.log("loading previously saved data for " + oldFileNames.length + " files: " + oldFileNames);
 
-      contextPoints = $.cookie('trace-data');
+      // Load previous roi data
+      oldRoI = JSON.parse(localStorage.getItem('roi-data'));
+      if (!$.isEmptyObject(oldRoI)) {
+        console.log("previous RoI: " + JSON.stringify(oldRoI));
+        roi = oldRoI;
+      }
+      // Load previous trace data
+      console.log("loading previous traces...");
+      var oldContextPoints = JSON.parse(localStorage.getItem('trace-data'));
+      if (!$.isEmptyObject(oldContextPoints)) {
+        loadTraces(oldContextPoints);
+        //console.log("contextPoints from last session: " + oldContextPoints);
+      }
 
       // Load form data
-      $("#tracer").val($.cookie('tracer-id'));
-      $("#subject").val($.cookie('subject-id', null));
-      $("#project").val($.cookie('project-id', null));
+      $("#tracer").val(localStorage.getItem('tracer-id'));
+      $("#subject").val(localStorage.getItem('subject-id'));
+      $("#project").val(localStorage.getItem('project-id'));
+
+      // What images do we need to upload?
+      launchModal(oldFileNames);
     });
+
 
     // Save current data
     $(window).unload(function(){
-      console.log("saving data on exit...");
-      savePoints();
-      $.cookie('trace-data', contextPoints, { expires: 7 });
-      $.cookie('roi-data', roi, { expires: 7 });
-      //$.cookie('images', imageFiles, { expires: 7 });
-      $.cookie('tracer-id', $("#tracer").val(), { expires: 7 });
-      $.cookie('subject-id', $("#subject").val(), { expires: 7 });
-      $.cookie('project-id', $("#project").val(), { expires: 7 });
+      console.log("exiting...");
+      if (!$.isEmptyObject(contextPoints) && imageFiles.length > 0) {
+        console.log("saving data on exit...");
+        //savePoints();
+        console.log("saving " + Object.keys(contextPoints).length + " traces: " + Object.keys(contextPoints));
+        localStorage.setItem('trace-data', JSON.stringify(contextPoints));
+        //console.log('locally stored trace(s): '+ localStorage.getItem('trace-data'));
+        localStorage.setItem('roi-data', JSON.stringify(roi));
+        localStorage.setItem('images', JSON.stringify(imageFiles));
+        localStorage.setItem('tracer-id', $("#tracer").val());
+        localStorage.setItem('subject-id', $("#subject").val());
+        localStorage.setItem('project-id', $("#project").val());
+      }
     });
 });
