@@ -454,9 +454,9 @@ $(window).load(function () {
     function launchModal(prevFiles) {
       console.log("# of Image files: " + imageFiles.length);
       console.log("# of old file names: " + prevFiles.length);
-      var diff = _.difference(imageFiles, prevFiles);
-      console.log("diff: " + diff);
-      if (!_.isEqual(imageFiles, prevFiles)) {
+
+      if (_.isEqual(imageFiles.sort(), prevFiles.sort()) == false) {
+        console.log(JSON.stringify(imageFiles) + " != " + JSON.stringify(prevFiles));
         console.log("Launching modal...");
         var missingFiles = prevFiles.join("\n");
         $("#missing-files").text(missingFiles);
