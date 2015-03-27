@@ -3,11 +3,11 @@
 {% import "bootstrap/wtf.html" as wtf %}
 
 {% block title %}APIL{% endblock %}
-{% block head -%}
+{% block scripts -%}
 {{super()}}
 <script type="text/javascript" src="{{ url_for('static', filename='js/underscore.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/ultrasoundtrace.js') }}"></script>
-{%- endblock head %}
+{%- endblock scripts %}
 
 {% block styles -%}
 {{super()}}
@@ -119,6 +119,8 @@
               <ul class="dropdown-menu dropdown-inverse">
                 <li><a id="load-image-data" href="#load-images"><span class="fa fa-picture-o"></span>  Images</a></li>
                 <li><a id="load-trace-data" href="#load-traces"><span class="fa fa-ellipsis-h"></span>  Traces</a></li>
+                <li><a id="load-prev-data" href="#load-previous-data"><span class="fa fa-refresh"></span>  Load recent data</a></li>
+                <li><a id="clear-prev-data" href="#clear-previous-data"><span class="fa fa-trash-o"></span>  Clear saved data</a></li>
               </ul>
             </div>
       </div>

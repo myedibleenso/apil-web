@@ -341,8 +341,6 @@ $(window).load(function () {
     });
 
 
-//};
-
     function createObjectURL(object) {
         return URL.createObjectURL(object);
     }
@@ -431,67 +429,7 @@ $(window).load(function () {
         updateImgData(f)
     }
 
-    $("#load-image-data").on('click', function() {
-      $("#load-images").trigger('click');
-    });
-
-    $("#load-images").on('change', function (e) {
-        files = Array.prototype.slice.call(this.files);
-        imageFiles = _.map(files, function(f){ return f.name; });
-        console.log("images: " + imageFiles);
-        numFiles = files.length;
-        clearAll();
-        console.log(numFiles + " loaded...");
-        updateImgData(files[0]);
-    });
-
-    $("#load-trace-data").on('click', function() {
-      $("#load-traces").trigger('click');
-    });
-
-    $("#load-traces").on('change', function (e) {
-        //Get first file in files Array
-        traceFile = $("#load-traces").prop('files')[0];
-        $.getJSON(createObjectURL(traceFile), function(json) {
-
-          // Load roi data
-          roi = $.parseJSON(json['roi']);
-          console.log("loaded RoI...");
-          displayRoICoords();
-          //console.log("roi from file: " + roi)
-          // drawRoI();
-
-          // Load trace data
-          var traced = json['trace-data'];
-          for (imgID in traced) {
-            if (!contextPoints.hasOwnProperty(imgID)) {contextPoints[imgID] = traced[imgID]}
-          }
-          loadPoints();
-          console.log("# traced images: "+ _.size(contextPoints));
-          console.log("traced images: "+ _.size(contextPoints));
-          // Load tracer id
-          $("#tracer").val(json['tracer-id']);
-          // Load subject id
-          $("#subject").val(json['subject-id']);
-          // Load project id
-          $("#project").val(json['project-id']);
-        });
-        //TODO: Read json data into script props.
-    });
-
-    // A terrible hack to trigger a file download...
-    $("#dump-traces").on('click', function() {
-      savePoints();
-      // add tracer $("#tracer-id")
-      var traceData = JSON.stringify(contextPoints);
-      var roiData = JSON.stringify(roi);
-      $('#roi-data').val(roiData);
-      console.log(traceData);
-      $('#trace-data').val(traceData);
-      console.log($('#trace-data').val())
-
-    });
-
+    // Handle image cycling
     $("#advance").on('click', function () {
         nextImage();
     });
@@ -514,5 +452,113 @@ $(window).load(function () {
         }
         // prevent the default action
         e.preventDefault();
+    });
+
+    function loadImages(files) {
+      imageFiles = _.map(files, function(f){ return f.name; });
+      console.log("images: " + imageFiles);
+      numFiles = files.length;
+      clearAll();
+      console.log(numFiles + " loaded...");
+      updateImgData(files[0]);
+    }
+
+    function loadTraces(traced) {
+      for (imgID in traced) {
+        if (!contextPoints.hasOwnProperty(imgID)) {contextPoints[imgID] = traced[imgID]}
+      }
+      loadPoints();
+    }
+
+    // Loading data is a two-step process (because of drop-down button)
+    $("#load-image-data").on('click', function() {
+      $("#load-images").trigger('click');
+    });
+
+    $("#load-images").on('change', function (e) {
+        files = Array.prototype.slice.call(this.files);
+        loadImages(files);
+    });
+
+    $("#load-trace-data").on('click', function() {
+      $("#load-traces").trigger('click');
+    });
+
+    $("#load-traces").on('change', function (e) {
+        //Get first file in files Array
+        traceFile = $("#load-traces").prop('files')[0];
+        $.getJSON(createObjectURL(traceFile), function(json) {
+
+          // Load roi data
+          roi = $.parseJSON(json['roi']);
+          console.log("loaded RoI...");
+          displayRoICoords();
+          //console.log("roi from file: " + roi)
+          // drawRoI();
+
+          // Load trace data
+          var traced = json['trace-data'];
+          loadTraces(traced);
+
+          console.log("# traced images: "+ _.size(contextPoints));
+          console.log("traced images: "+ _.size(contextPoints));
+          // Load tracer id
+          $("#tracer").val(json['tracer-id']);
+          // Load subject id
+          $("#subject").val(json['subject-id']);
+          // Load project id
+          $("#project").val(json['project-id']);
+        });
+        //TODO: Read json data into script props.
+    });
+
+    // Save data
+    $("#dump-traces").on('click', function() {
+      console.log("saving traces.json...");
+      savePoints();
+      var traceData = JSON.stringify(contextPoints);
+      var roiData = JSON.stringify(roi);
+      $('#roi-data').val(roiData);
+      $('#trace-data').val(traceData);
+    })
+
+    // Clear previous data
+    $("#clear-prev-data").on('click', function() {
+      console.log("clearing previously saved data...");
+      $.cookie('trace-data', null);
+      $.cookie('roi-data', null);
+      //$.cookie('images', null);
+      $.cookie('tracer-id', null);
+      $.cookie('subject-id', null);
+      $.cookie('project-id', null);
+    });
+
+    // Load previous data
+    $("#load-prev-data").on('click', function() {
+      console.log("loading previously saved data...");
+      //files = $.cookie('images');
+      //loadImages(files);
+
+      roi = $.cookie('roi-data');
+      displayRoICoords();
+
+      contextPoints = $.cookie('trace-data');
+
+      // Load form data
+      $("#tracer").val($.cookie('tracer-id'));
+      $("#subject").val($.cookie('subject-id', null));
+      $("#project").val($.cookie('project-id', null));
+    });
+
+    // Save current data
+    $(window).unload(function(){
+      console.log("saving data on exit...");
+      savePoints();
+      $.cookie('trace-data', contextPoints, { expires: 7 });
+      $.cookie('roi-data', roi, { expires: 7 });
+      //$.cookie('images', imageFiles, { expires: 7 });
+      $.cookie('tracer-id', $("#tracer").val(), { expires: 7 });
+      $.cookie('subject-id', $("#subject").val(), { expires: 7 });
+      $.cookie('project-id', $("#project").val(), { expires: 7 });
     });
 });
