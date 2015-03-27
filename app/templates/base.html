@@ -1,12 +1,11 @@
 {% extends "bootstrap/base.html" %}
 
 {% block title %}APIL{% endblock %}
-{}
-{% block head -%}
-{{super()}}
-<script type="text/javascript" src="{{ url_for('static', filename='js/jquery-2.1.1.js') }}"></script>
-{%- endblock head %}
-
+{% block scripts -%}
+  <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-2.1.1.js') }}"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.0/js/bootstrap.min.js"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='js/jquery.cookie.js') }}"></script>
+{%- endblock scripts %}
 {% block styles -%}
 {{super()}}
 <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
