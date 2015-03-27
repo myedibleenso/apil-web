@@ -349,21 +349,18 @@ $(window).load(function () {
 
     function changeImg(imagePath) {
         context.clearRect(0, 0, canvas.width, canvas.height);
-
-        currentImage.src = imagePath;
-
         currentImage.onload = function () {
-            context.drawImage(currentImage, 0, 0);
+            context.drawImage(currentImage, 0, 0, canvas.width, canvas.height);
             // need to do this inside or we'll lose it...
             if (currentImageName in contextPoints) {
                 loadPoints();
             }
         };
+
+        currentImage.src = imagePath;
         var width = parseInt(currentImage.width);
         var height = parseInt(currentImage.height);
 
-        canvas.width = width;
-        canvas.height = height;
     }
 
     function updateName(f) {
@@ -398,6 +395,7 @@ $(window).load(function () {
     }
 
     function updateImgData(f) {
+        console.log("updating image...");
         updateIdxNum();
         updateName(f);
         changeImg(createObjectURL(f));
