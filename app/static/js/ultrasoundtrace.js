@@ -124,9 +124,6 @@ $(window).load(function () {
             var currentCoords = getMousePos(canvas, e);
             updateRoI(startCoords, currentCoords);
             redraw();
-            // after one use of RoI constrainer return to pen
-            $("#pen").trigger('click');
-            mode = "pen";
         };
     }
 
