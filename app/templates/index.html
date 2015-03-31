@@ -4,4 +4,10 @@
 
 {% block page_content -%}
 <h2>Welcome to APIL's web app for tongue tracing</h2>
+<div class="container-fluid">
+<h4>Getting started</h4>
+<ul>
+  <li>Download an <a href="{{ url_for('serve_file', filename='toy-data-set.zip') }}">annotated toy dataset here</a>.</li>
+</ul>
+</div>
 {%- endblock page_content %}

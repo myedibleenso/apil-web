@@ -56,12 +56,11 @@ def trace():
                            title='Trace', form=form)
 
 
-@app.route('/downloads/<filename>')
+@app.route('/downloads/<string:filename>')
 def serve_file(filename):
-    return Response(open(os.path.join(UPLOADS_DIR, filename), 'rb').read(),
-                       mimetype="text/plain",
-                       headers={"Content-Disposition":
-                                    "attachment;filename={0}".format(filename)})
+    app.logger.info("sending {0}".format(filename))
+    return send_from_directory(directory=UPLOADS_DIR,
+                               filename=filename, as_attachment=True)
 
 if __name__ == '__main__':
     app.debug = True
