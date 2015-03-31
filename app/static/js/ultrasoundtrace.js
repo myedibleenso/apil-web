@@ -111,7 +111,10 @@ $(window).load(function () {
 
         canvas.onmousemove = function (e) {
             if (isDrawing) {
-                var coords = getMousePos(canvas, e);
+                // Draw as we go
+                var currentCoords = getMousePos(canvas, e);
+                updateRoI(startCoords, currentCoords);
+                redraw();
             }
         };
         //context.clearRect(0, 0, canvas.width, canvas.height);
