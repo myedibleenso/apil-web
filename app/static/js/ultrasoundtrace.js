@@ -31,6 +31,12 @@ $(window).load(function () {
         context.strokeStyle = '#ff0000'; // red
     }
 
+    function setInactivePointContext() {
+      setPenContext();
+      //change the color
+      context.strokeStyle = '#996666';
+    }
+
     function setRoIContext() {
         context.lineWidth = 4;
         context.lineJoin = 'round';
@@ -155,15 +161,10 @@ $(window).load(function () {
         canvas.onmousemove = function (e) {
             if (isDrawing) {
                 var coords = getMousePos(canvas, e);
-                if (withinRoI(coords) == true) {
-                    //var previous = _.last(newPoints);
-                    newPoints.push(coords);
-                    context.lineTo(coords.x, coords.y);
-                    context.stroke();
-                }
-                else {
-                    console.log("point outside of RoI!")
-                }
+                newPoints.push(coords);
+
+                context.lineTo(coords.x, coords.y);
+                context.stroke();
             }
         };
 
@@ -191,12 +192,13 @@ $(window).load(function () {
     // connect the dots!
     function redraw() {
         clear();
-        drawRoI();
         setPenContext();
-        filterPoints();
+        //filterPoints();
         points = sortPoints(points);
         for (var i = 0; i < points.length - 1; i++) {
             var point = points[i];
+            // Is our point within the RoI?
+            (withinRoI(point) == true) ? setPenContext() : setInactivePointContext();
             var nextPoint = points[i + 1];
 
             context.beginPath();
@@ -204,6 +206,7 @@ $(window).load(function () {
             context.lineTo(nextPoint.x, nextPoint.y);
             context.stroke();
         }
+        drawRoI();
     }
 
     function sortPoints(points) {
