@@ -358,6 +358,8 @@ $(window).load(function () {
             if (currentImageName in contextPoints) {
                 loadPoints();
             }
+            // We need the RoI, etc.
+            redraw();
         };
 
         currentImage.src = imagePath;
@@ -481,7 +483,7 @@ $(window).load(function () {
 
     function loadTraces(traced) {
       for (imgID in traced) {
-        if (!contextPoints.hasOwnProperty(imgID)) {contextPoints[imgID] = traced[imgID]}
+        contextPoints[imgID] = traced[imgID];
       }
       loadPoints();
     }
@@ -523,6 +525,8 @@ $(window).load(function () {
           $("#project").val(json['project-id']);
 
           launchModal(Object.keys(traced));
+          // clear files
+          $("#load-traces").val(null);
         });
         //TODO: Read json data into script props.
     });
